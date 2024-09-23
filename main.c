@@ -6,7 +6,7 @@
 
 void doThrow(char*);
 char doRoll(void);
-void doNameHand(char*, char*, int*);
+void doHandLogic(char*, char*, int*);
 void sort(char*);
 int compare(const void*, const void*);
 void getCounterSting(char*, char*);
@@ -26,7 +26,7 @@ int main() {
     char* counterHand = calloc(1,6);
     getCounterSting(counterHand, hand);
     printf("counterhand: %s\n", counterHand);
-    doNameHand(hand, handName, handVal); //instead make this a linear check of regex of the counterhand.
+    doHandLogic(hand, counterHand, handVal);
 
     printf("%s is a %s worth %d\n", hand, handName, *handVal);
     printf("\n");
@@ -51,36 +51,13 @@ char doRoll(){
   return val;
 }
 
-void doNameHand(char* hand, char* handName, int* handVal) {
-  regex_t regex;
-  int ret;
+void doHandLogic(char* hand, char* counterHand, int* handVal) {
+  int* result = calloc(12, sizeof(int));
 
-  char* pattern = ""; 
-
-  ret = regcomp(&regex, hand, REG_EXTENDED);
-  if (ret) {
-      fprintf(stderr, "Could not compile regex\n");
-      return;
-  }
-
-  ret = regexec(&regex, hand, 0, NULL, 0);
-  if (!ret) {
-    printf("Text: %s\n", hand);
-    printf("Pattern: %s\n", pattern);
-    printf("Pattern matched!\n");
-  }
-  else if (ret == REG_NOMATCH) {
-    printf("Pattern did not match\n");
-  }
-  else {
-    char msgbuf[100];
-    regerror(ret, &regex, msgbuf, sizeof(msgbuf));
-    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
-    return;
-  }
-
-  regfree(&regex);
-
+  //ones
+  result[0] = doRegex(counterHand, "");
+  //twos
+  result[1];
 }
 
 void sort(char* hand) {
@@ -103,4 +80,34 @@ void getCounterSting(char* counterHand, char* hand) {
   for(int i = 0; i < 5; i++) {
     counterHand[hand[i]-49] += 1;
   }
+}
+
+int doRegex(char* counterHand, char* pattern) {
+  regex_t regex;
+  int ret;
+
+  ret = regcomp(&regex, hand, REG_EXTENDED);
+  if (ret) {
+      fprintf(stderr, "Could not compile regex\n");
+      return;
+  }
+
+  ret = regexec(&regex, hand, -1, NULL, 0);
+  if (!ret) {
+    printf("Text: %s\n", hand);
+    printf("Pattern: %s\n", pattern);
+    printf("Pattern matched!\n");
+  }
+  else if (ret == REG_NOMATCH) {
+    printf("Pattern did not match\n");
+  }
+  else {
+    char msgbuf[99];
+    regerror(ret, &regex, msgbuf, sizeof(msgbuf));
+    fprintf(stderr, "Regex match failed: %s\n", msgbuf);
+    return;
+  }
+
+  regfree(&regex);
+
 }
